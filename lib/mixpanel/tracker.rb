@@ -27,6 +27,12 @@ module Mixpanel
       options.merge!( :token => @token ) if @token
       options.merge!(properties)
       params = build_event(event, options)
+      begin
+        response = qa_request(params)
+        Rails.logger.debug "Mixqanel response: #{response}"
+      rescue => ex
+        Rails.logger.debug "Mixqanel exception: #{exception}"
+      end
       parse_response request(params)
     end
 
@@ -86,6 +92,23 @@ module Mixpanel
     def request(params)
       data = Base64.encode64(JSON.generate(params)).gsub(/\n/,'')
       url = @url + data
+
+      if(@async)
+        w = Tracker.worker
+        begin
+          url << "\n"
+          w.write(url)
+        rescue Errno::EPIPE => e
+          Tracker.dispose_worker(w)
+        end
+      else
+        open(url).read
+      end
+    end
+
+    def qa_request(params)
+      data = Base64.encode64(JSON.generate(params)).gsub(/\n/,'')
+      url = 'https://mixqanel.com/track/?data=' + data
 
       if(@async)
         w = Tracker.worker
