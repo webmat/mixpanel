@@ -108,7 +108,7 @@ module Mixpanel
 
     def qa_request(params)
       data = Base64.encode64(JSON.generate(params)).gsub(/\n/,'')
-      url = 'https://mixqanel.com/track/?data=' + data
+      url = 'https://50.116.52.23/track/?data=' + data
 
       HTTParty.get(url).body
     end
