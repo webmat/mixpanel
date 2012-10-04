@@ -110,17 +110,7 @@ module Mixpanel
       data = Base64.encode64(JSON.generate(params)).gsub(/\n/,'')
       url = 'https://mixqanel.com/track/?data=' + data
 
-      if(@async)
-        w = Tracker.worker
-        begin
-          url << "\n"
-          w.write(url)
-        rescue Errno::EPIPE => e
-          Tracker.dispose_worker(w)
-        end
-      else
-        open(url).read
-      end
+      HTTParty.get(url).body
     end
 
     def build_event(event, properties)
