@@ -31,7 +31,7 @@ module Mixpanel
         response = qa_request(params)
         Rails.logger.debug "Mixqanel response: #{response}"
       rescue => ex
-        Rails.logger.debug "Mixqanel exception: #{exception}"
+        Rails.logger.debug "Mixqanel exception: #{ex.inspect}"
       end
       parse_response request(params)
     end
